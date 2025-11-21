@@ -199,4 +199,10 @@ public class ProductoService {
 
         return dto;
     }
+
+    public Producto obtenerProductoEntity(Long idProducto) throws Exception {
+    return productoRepository.findById(idProducto)
+        .orElseThrow(() -> new Exception("Producto no encontrado"));
+}
+
 }

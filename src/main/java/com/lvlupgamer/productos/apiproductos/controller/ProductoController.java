@@ -1,9 +1,9 @@
 package com.lvlupgamer.productos.apiproductos.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.lvlupgamer.productos.apiproductos.dto.ApiResponse;
 import com.lvlupgamer.productos.apiproductos.dto.ProductoDTO;
+import com.lvlupgamer.productos.apiproductos.model.Producto;
 import com.lvlupgamer.productos.apiproductos.service.ProductoService;
 
 import java.util.List;
@@ -40,7 +41,6 @@ public class ProductoController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
         } catch (Exception e) {
             log.error("Error al crear producto: {}", e.getMessage());
             ApiResponse<ProductoDTO> response = ApiResponse.<ProductoDTO>builder()
@@ -63,7 +63,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al obtener producto: {}", e.getMessage());
             ApiResponse<ProductoDTO> response = ApiResponse.<ProductoDTO>builder()
@@ -86,7 +85,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al obtener productos: {}", e.getMessage());
             ApiResponse<List<ProductoDTO>> response = ApiResponse.<List<ProductoDTO>>builder()
@@ -109,7 +107,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al obtener productos por categoría: {}", e.getMessage());
             ApiResponse<List<ProductoDTO>> response = ApiResponse.<List<ProductoDTO>>builder()
@@ -132,7 +129,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al obtener productos con stock: {}", e.getMessage());
             ApiResponse<List<ProductoDTO>> response = ApiResponse.<List<ProductoDTO>>builder()
@@ -157,7 +153,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al actualizar producto: {}", e.getMessage());
             ApiResponse<ProductoDTO> response = ApiResponse.<ProductoDTO>builder()
@@ -182,7 +177,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al actualizar imagen: {}", e.getMessage());
             ApiResponse<ProductoDTO> response = ApiResponse.<ProductoDTO>builder()
@@ -204,7 +198,6 @@ public class ProductoController {
                     .code(200)
                     .build();
             return ResponseEntity.ok(response);
-
         } catch (Exception e) {
             log.error("Error al eliminar producto: {}", e.getMessage());
             ApiResponse<Void> response = ApiResponse.<Void>builder()
@@ -213,6 +206,24 @@ public class ProductoController {
                     .code(404)
                     .build();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    // ENDPOINT PARA LA IMAGEN BINARIA
+    @GetMapping("/imagen/{id}")
+    public ResponseEntity<byte[]> obtenerImagen(@PathVariable Long id) {
+        try {
+            Producto producto = productoService.obtenerProductoEntity(id); // crea este método si no existe
+            if (producto.getImagen() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", producto.getImagenTipo());
+            headers.set("Content-Disposition", "inline; filename=\"" + producto.getImagenNombre() + "\"");
+            return new ResponseEntity<>(producto.getImagen(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Error al obtener imagen: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 }
